@@ -23,7 +23,7 @@ public class PointServiceTest extends ContextConfiguration {
     public void isValidationNewUser() throws Exception{
         // given
         // when
-        UserPoint point = pointService.point(NEW_USER_ID);
+        UserPoint point = pointService.getUserPointWithDefault(NEW_USER_ID);
         boolean newUser = isNewUser(point);
 
         // then
@@ -37,7 +37,7 @@ public class PointServiceTest extends ContextConfiguration {
         setUpExistUserPoint(EXIST_USER_ID);
 
         // when
-        UserPoint existUser = pointService.point(EXIST_USER_ID);
+        UserPoint existUser = pointService.getUserPointWithDefault(EXIST_USER_ID);
         boolean isNewUser = isNewUser(existUser);
 
         // then

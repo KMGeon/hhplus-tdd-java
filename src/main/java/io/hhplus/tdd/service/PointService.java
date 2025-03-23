@@ -19,22 +19,10 @@ public class PointService {
 
     private static final Logger logger = LoggerFactory.getLogger(PointService.class);
 
-    public UserPoint point(
+    public UserPoint getUserPointWithDefault(
             final long userId
     ) {
-        UserPoint userPoint = userPointTable.selectById(userId);
-
-        boolean isNewUser = userPoint.isNewUser(userPoint);
-        logger.info("[{}.point] :isNewUser : {}", getClass().getSimpleName(), isNewUser);
-
-        /**
-         * DB에서 getOrDefault로 empty를 반환하는데 여기서 또 써야할까??
-         * getOreDefault가 작은 비즈니스 로직이라고 생각하는데 DB에 비즈니스 로직이 숨겨져 있다.
-         * 서비스 Layer에서 중복적으로 Empty를 반환하는 중복코드가 생성되면 비즈니스 로직은 명확하게 드러나지만
-         * Repository의 코드의 변경이 불가능하기 때문에 중복적인 로직을  처리한다.
-         */
-        if (isNewUser) return UserPoint.empty(userId);
-        return userPoint;
+        return userPointTable.selectById(userId);
     }
 
     public UserPoint charge(
@@ -53,7 +41,6 @@ public class PointService {
         return userPoint;
     }
 
-    // todo : 테스트 코드 작성
     public UserPoint use(
             final long id,
             final long amount,
@@ -62,6 +49,9 @@ public class PointService {
 
         UserPoint userPoint = userPointTable.selectById(id);
         long currentUserId = userPoint.id();
+
+        boolean zeroPointUse = userPoint.isZeroPointUse(amount);
+        if (zeroPointUse) return userPoint;
 
         UserPoint validUse = userPoint.isValidUse(amount, currTimeMillis);
         long remainPoint = validUse.point();
@@ -72,3 +62,4 @@ public class PointService {
         return rtn;
     }
 }
+

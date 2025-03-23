@@ -33,7 +33,7 @@ public class PointController {
         logger.info("====== /point/{id} [{}.point()] start ======", getClass().getSimpleName());
 
         logger.info("[{}] ======  /point/{id} [userId : {}]", getClass().getSimpleName(), id);
-        UserPoint rtn = pointService.point(id);
+        UserPoint rtn = pointService.getUserPointWithDefault(id);
         logger.info("====== /point/{id} [{}.point()] end ======", getClass().getSimpleName());
         return rtn;
     }
