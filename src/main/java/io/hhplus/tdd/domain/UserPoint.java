@@ -25,8 +25,6 @@ public record UserPoint(
             long requiredPoint,
             long currentTimeMiles
     ) {
-        if (isZeroPointUse(requiredPoint)) return this;
-
         validateForUse(requiredPoint);
 
         long remainingPoint = this.point - requiredPoint;
@@ -51,11 +49,11 @@ public record UserPoint(
         return updateMillis == getCurrentTimeMillis();
     }
 
-    private boolean isZeroPointUse(long requiredPoint) {
-        return this.point == requiredPoint;
+    public boolean isZeroPointUse(long requiredPoint) {
+        return requiredPoint == 0L;
     }
 
-    private long getCurrentTimeMillis() {
+    public long getCurrentTimeMillis() {
         if (timeProvider == null) throw new IllegalStateException("TimeProvider가 설정되지 않았습니다.");
 
         return timeProvider.getConsistentTimeMillis();

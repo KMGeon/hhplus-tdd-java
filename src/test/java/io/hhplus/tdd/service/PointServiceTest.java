@@ -3,27 +3,28 @@ package io.hhplus.tdd.service;
 import io.hhplus.tdd.ContextConfiguration;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.UserPoint;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
 import static io.hhplus.tdd.domain.UserPoint.isNewUser;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PointServiceTest extends ContextConfiguration {
 
-    private static final Long NEW_USER_ID = 1L;
-    private static final Long EXIST_USER_ID = 99L;
-    private static final Long DEFAULT_POINT = 1000L;
+    @BeforeEach
+    public void setUp() {
+        timeProvider.reset();
+    }
 
     @Test
     @DisplayName("특정 유저가 신규인지 판단")
-    public void isValidationNewUser() throws Exception{
+    public void isValidationNewUser() throws Exception {
         // given
         // when
-        UserPoint point = pointService.getUserPointWithDefault(NEW_USER_ID);
+        UserPoint point = pointService.getUserPointWithDefault(2L);
         boolean newUser = isNewUser(point);
 
         // then
@@ -32,7 +33,7 @@ public class PointServiceTest extends ContextConfiguration {
 
     @Test
     @DisplayName("특정 유저가 기존유저 판단")
-    public void isValidationExistUser() throws Exception{
+    public void isValidationExistUser() throws Exception {
         // given
         setUpExistUserPoint(EXIST_USER_ID);
 
@@ -62,7 +63,7 @@ public class PointServiceTest extends ContextConfiguration {
     }
 
     @Test
-    public void 포인트_충전() throws Exception{
+    public void 포인트_충전() throws Exception {
         // given
         long currentTimeMillis = currentTimeMillis();
         // when
@@ -76,18 +77,118 @@ public class PointServiceTest extends ContextConfiguration {
 
         // then
         assertAll(
-                () -> Assertions.assertThat(chargeUserPoint.id()).isEqualTo(NEW_USER_ID),
-                () -> Assertions.assertThat(chargeUserPoint.point()).isEqualTo(DEFAULT_POINT),
-                () -> Assertions.assertThat(chargeUserPoint.updateMillis()).isNotNull()
+                () -> assertThat(chargeUserPoint.id()).isEqualTo(NEW_USER_ID),
+                () -> assertThat(chargeUserPoint.point()).isEqualTo(DEFAULT_POINT),
+                () -> assertThat(chargeUserPoint.updateMillis()).isNotNull()
         );
 
-        Assertions.assertThat(pointHistories).satisfies(v1-> {
+        assertThat(pointHistories).satisfies(v1 -> {
             PointHistory pointHistory = pointHistories.get(0);
             assertAll(
-                    () -> Assertions.assertThat(pointHistory.userId()).isEqualTo(NEW_USER_ID),
-                    () -> Assertions.assertThat(pointHistory.amount()).isEqualTo(DEFAULT_POINT),
-                    () -> Assertions.assertThat(pointHistory.updateMillis()).isEqualTo(currentTimeMillis)
+                    () -> assertThat(pointHistory.userId()).isEqualTo(NEW_USER_ID),
+                    () -> assertThat(pointHistory.amount()).isEqualTo(DEFAULT_POINT),
+                    () -> assertThat(pointHistory.updateMillis()).isEqualTo(currentTimeMillis)
             );
         });
+    }
+
+    @Nested
+    @DisplayName("유저 포인트 사용")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class UseCase {
+
+        private static final long USE_NEW_USER_ID = 300;
+        private UserPoint userPoint;
+
+        @BeforeEach
+        public void setUp() throws Exception {
+            userPoint = setUpExistUserPoint(EXIST_USER_ID);
+            timeProvider.reset();
+        }
+
+        @Test
+        @Order(5)
+        public void 유저_포인트_사용_성공() throws Exception {
+            // given
+
+            // when
+            long requestPoint = DEFAULT_POINT - 100L;
+
+            long expectPoint = DEFAULT_POINT - requestPoint;
+
+            UserPoint userPoint = pointService.use(EXIST_USER_ID, requestPoint, currentTimeMillis());
+            List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(EXIST_USER_ID);
+
+            // then
+            assertAll(
+                    () -> assertThat(userPoint.id()).isEqualTo(EXIST_USER_ID),
+                    () -> assertThat(userPoint.point()).isEqualTo(expectPoint),
+                    () -> assertThat(userPoint.updateMillis()).isNotNull()
+            );
+
+            assertThat(pointHistories).satisfies(v1 -> {
+                PointHistory pointHistory = pointHistories.get(0);
+                assertAll(
+                        () -> assertThat(pointHistory.userId()).isEqualTo(EXIST_USER_ID),
+                        () -> assertThat(pointHistory.amount()).isEqualTo(requestPoint)
+                );
+            });
+        }
+
+        @Test
+        @Order(4)
+        @DisplayName("포인트 0원 사용하면 자신 반환")
+        public void 유저_포인트_사용_오류_1() throws Exception {
+            // given
+
+            // when
+            UserPoint use = pointService.use(EXIST_USER_ID, 0L, currentTimeMillis());
+
+            // then
+            assertEquals(use, userPoint);
+        }
+
+        @Test
+        @Order(3)
+        @DisplayName("새로운 회원이면 Exception")
+        public void 유저_포인트_사용_오류_2() throws Exception {
+            // given
+
+            // when
+            // then
+            assertThatThrownBy(() -> pointService.use(NEW_USER_ID, DEFAULT_POINT, currentTimeMillis()))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("존재하지 않는 회원입니다.");
+        }
+
+        @Test
+        @Order(2)
+        @DisplayName("기존 금액보다 많은 포인트 사용 Exception")
+        public void 유저_포인트_사용_오류_3() throws Exception {
+            // given
+
+            // when
+            // then
+            assertThatThrownBy(() -> pointService.use(EXIST_USER_ID, DEFAULT_POINT + 1L, currentTimeMillis()))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("포인트가 부족합니다.");
+        }
+
+        @Test
+        @Order(1)
+        @DisplayName("""
+                상황 : 새로운 유저 + 포인트 부족
+                expect : 새로운 유저 Exception 선행
+                """)
+        public void 유저_포인트_사용_오류_4() throws Exception {
+            // given
+
+            // when
+
+            // then
+            assertThatThrownBy(() -> pointService.use(NEW_USER_ID, DEFAULT_POINT + 1L, currentTimeMillis()))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("존재하지 않는 회원입니다.");
+        }
     }
 }

@@ -18,4 +18,8 @@ public class TimeProvider {
         return cachedTime;
     }
 
+    public void reset() {
+        cachedTime = 0;
+    }
+
 }
