@@ -1,6 +1,8 @@
 package io.hhplus.tdd.domain;
 
 
+import io.hhplus.tdd.common.exception.NotFoundUserException;
+
 public record UserPoint(
         long id,
         long point,
@@ -32,9 +34,8 @@ public record UserPoint(
     }
 
     private void validateForUse(long requiredPoint) {
-        if (isNewUser()) {
-            throw new RuntimeException("존재하지 않는 회원입니다.");
-        }
+        if (isNewUser()) throw new NotFoundUserException();
+
 
         if (!isEnoughPoint(requiredPoint)) {
             throw new RuntimeException("포인트가 부족합니다.");
@@ -45,7 +46,7 @@ public record UserPoint(
         return this.point >= requiredPoint;
     }
 
-    private boolean isNewUser() {
+    public boolean isNewUser() {
         return updateMillis == getCurrentTimeMillis();
     }
 

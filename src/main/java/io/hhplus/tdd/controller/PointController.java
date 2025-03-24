@@ -21,11 +21,6 @@ public class PointController {
     private final PointService pointService;
     private final TimeProvider timeProvider;
 
-    private long getCurrTimeMillis() {
-        return timeProvider.currentTimeMillis();
-    }
-
-
     @GetMapping("{id}")
     public UserPoint point(
             @PathVariable long id
@@ -33,21 +28,23 @@ public class PointController {
         logger.info("====== /point/{id} [{}.point()] start ======", getClass().getSimpleName());
 
         logger.info("[{}] ======  /point/{id} [userId : {}]", getClass().getSimpleName(), id);
-        UserPoint rtn = pointService.getUserPointWithDefault(id);
+        UserPoint rtn = pointService.point(id);
+
         logger.info("====== /point/{id} [{}.point()] end ======", getClass().getSimpleName());
         return rtn;
     }
 
-    /**
-     * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
-     */
     @GetMapping("{id}/histories")
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
-    }
+        logger.info("====== /{id}/histories [{}.history()] start ======", getClass().getSimpleName());
 
+        logger.info("[{}] ======  /{id}/histories [userId : {}]", getClass().getSimpleName(), id);
+        List<PointHistory> rtn  = pointService.history(id);
+        logger.info("====== /{id}/histories [{}.history()] start ======", getClass().getSimpleName());
+        return rtn;
+    }
 
     @PatchMapping("{id}/charge")
     public UserPoint charge(
@@ -79,4 +76,9 @@ public class PointController {
         logger.info("====== /{id}/use [{}.use()] end ======", getClass().getSimpleName());
         return rtn;
     }
+
+    private long getCurrTimeMillis() {
+        return timeProvider.currentTimeMillis();
+    }
+
 }

@@ -1,4 +1,4 @@
-package io.hhplus.tdd.config;
+package io.hhplus.tdd.common.configuration;
 
 import io.hhplus.tdd.domain.TimeProvider;
 import io.hhplus.tdd.domain.UserPoint;

@@ -1,5 +1,6 @@
 package io.hhplus.tdd.service;
 
+import io.hhplus.tdd.common.exception.NotFoundUserException;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -19,10 +22,26 @@ public class PointService {
 
     private static final Logger logger = LoggerFactory.getLogger(PointService.class);
 
-    public UserPoint getUserPointWithDefault(
+    public UserPoint point(
             final long userId
     ) {
+        validateUserExistence(userId);
+
         return userPointTable.selectById(userId);
+    }
+
+    private void validateUserExistence(long userId) {
+        boolean isNewUser = userPointTable.selectById(userId).isNewUser();
+        logger.info("[{}.validateUserExistence] isNewUser: {}", getClass().getSimpleName(), isNewUser);
+        if (isNewUser) throw new NotFoundUserException(userId);
+    }
+
+    public List<PointHistory> history(
+            final long userId
+    ) {
+        validateUserExistence(userId);
+        
+        return pointHistoryTable.selectAllByUserId(userId);
     }
 
     public UserPoint charge(
