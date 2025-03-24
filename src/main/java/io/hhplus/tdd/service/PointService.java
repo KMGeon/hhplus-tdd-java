@@ -65,7 +65,6 @@ public class PointService {
             final long amount,
             final long currTimeMillis
     ) {
-
         UserPoint userPoint = userPointTable.selectById(id);
         long currentUserId = userPoint.id();
 
