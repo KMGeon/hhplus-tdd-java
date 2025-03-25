@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class PointMockApiCaller extends MockApiCaller {
@@ -21,6 +22,16 @@ public class PointMockApiCaller extends MockApiCaller {
 
     public UserPoint point(long id, int expectStatus) throws Exception {
         MockHttpServletRequestBuilder builder = get("/point/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return objectMapper.readValue(mockMvc.perform(builder)
+                .andExpect(status().is(expectStatus))
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserPoint>() {});
+    }
+
+    public UserPoint charge(long id, long amount, int expectStatus) throws Exception {
+        MockHttpServletRequestBuilder builder = patch("/point/{id}/charge", id)
+                .content(objectMapper.writeValueAsString(amount))
                 .contentType(MediaType.APPLICATION_JSON);
 
         return objectMapper.readValue(mockMvc.perform(builder)

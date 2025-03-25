@@ -14,6 +14,7 @@ import java.util.List;
 public class PointController {
 
     private static final Logger logger = LoggerFactory.getLogger(PointController.class);
+    private static final long currTimeMillis = System.currentTimeMillis();
 
     private final PointService pointService;
 
@@ -42,15 +43,18 @@ public class PointController {
         return List.of();
     }
 
-    /**
-     * TODO - 특정 유저의 포인트를 충전하는 기능을 작성해주세요.
-     */
     @PatchMapping("{id}/charge")
     public UserPoint charge(
             @PathVariable(name = "id") long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        logger.info("====== /{id}/point [{}.charge()] start ======", getClass().getSimpleName());
+        logger.info("[{}] ======  /{id}/point [userId : {}]", getClass().getSimpleName(), id);
+        logger.info("[{}] ======  /{id}/point [amount : {}]", getClass().getSimpleName(), amount);
+        UserPoint rtn = pointService.charge(id, amount, currTimeMillis);
+        logger.info("[{}] ======  /{id}/point [rtn : {}]", getClass().getSimpleName(), rtn);
+        logger.info("====== /{id}/point [{}.charge()] end ======", getClass().getSimpleName());
+        return rtn;
     }
 
     /**
