@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -24,6 +26,14 @@ public class PointService {
             final long id
     ) {
         return userPointTable.selectById(id);
+    }
+
+    public List<PointHistory> history(
+            final long id
+    ) {
+        return userPointTable.selectById(id)
+                .isNewUser() ? List.of() :
+                pointHistoryTable.selectAllByUserId(id);
     }
 
     public UserPoint charge(

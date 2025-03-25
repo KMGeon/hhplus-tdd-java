@@ -33,14 +33,16 @@ public class PointController {
         return rtn;
     }
 
-    /**
-     * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
-     */
     @GetMapping("{id}/histories")
     public List<PointHistory> history(
             @PathVariable(name = "id") long id
     ) {
-        return List.of();
+        logger.info("====== /{id}/histories [{}.history()] start ======", getClass().getSimpleName());
+
+        List<PointHistory> rtn = pointService.history(id);
+
+        logger.info("====== /{id}/histories [{}.history()] end ======", getClass().getSimpleName());
+        return rtn;
     }
 
     @PatchMapping("{id}/charge")
@@ -49,10 +51,13 @@ public class PointController {
             @RequestBody long amount
     ) {
         logger.info("====== /{id}/point [{}.charge()] start ======", getClass().getSimpleName());
+
         logger.info("[{}] ======  /{id}/point [userId : {}]", getClass().getSimpleName(), id);
         logger.info("[{}] ======  /{id}/point [amount : {}]", getClass().getSimpleName(), amount);
+
         UserPoint rtn = pointService.charge(id, amount, currTimeMillis);
         logger.info("[{}] ======  /{id}/point [rtn : {}]", getClass().getSimpleName(), rtn);
+
         logger.info("====== /{id}/point [{}.charge()] end ======", getClass().getSimpleName());
         return rtn;
     }

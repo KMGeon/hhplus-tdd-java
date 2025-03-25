@@ -1,5 +1,7 @@
 package io.hhplus.tdd.domain;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -94,5 +96,14 @@ class UserPointTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("충전 한도 초과");
 
+    }
+
+    @Test
+    public void 신규_유저_판단() throws Exception{
+        // given
+        // when
+        boolean newUser = UserPoint.empty(USER_ID).isNewUser();
+        // then
+        assertEquals(newUser,true,"");
     }
 }

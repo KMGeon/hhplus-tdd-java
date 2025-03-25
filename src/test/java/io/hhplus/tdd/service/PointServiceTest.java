@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,17 +94,53 @@ class PointServiceTest {
     }
 
     @Nested
-    @DisplayName("[PATCH] : /point/{id} - pointService.getUserPoint")
+    @DisplayName("[GET] : {id}/histories - pointService.history")
+     class history{
+
+        @Test
+        @DisplayName("기존 유저가 있을 시 List<History> 반환")
+        public void history_shouldReturnUser_existUser() throws Exception{
+            // given
+            List<PointHistory> expectHistory = List.of(new PointHistory(1L, 1L, 1000L, TransactionType.CHARGE, 1234L));
+
+            when(userPointTable.selectById(eq(EXISTING_USER_ID))).thenReturn(existingUserPoint);
+            when(pointHistoryTable.selectAllByUserId(eq(EXISTING_USER_ID))).thenReturn(expectHistory);
+            // when
+            List<PointHistory> rtn = pointService.history(EXISTING_USER_ID);
+
+            // then
+            assertEquals(rtn,expectHistory);
+            verify(userPointTable, times(1)).selectById(EXISTING_USER_ID);
+            verify(pointHistoryTable, times(1)).selectAllByUserId(EXISTING_USER_ID);
+        }
+
+        @Test
+        @DisplayName("신규 유저 [] 반환")
+        public void history_shouldReturnEmpty_newUser() throws Exception{
+            // given
+            when(userPointTable.selectById(eq(NEW_USER_ID))).thenReturn(UserPoint.empty(NEW_USER_ID));
+            // when
+            List<PointHistory> rtn = pointService.history(NEW_USER_ID);
+
+            // then
+            assertThat(rtn).isEmpty();
+            verify(userPointTable, times(1)).selectById(NEW_USER_ID);
+        }
+
+     }
+
+    @Nested
+    @DisplayName("[PATCH] : {id}/charge - pointService.charge")
     class charge {
 
         @Test
         @DisplayName("포인트 충전")
         public void charge_shouldReturnUserPoint_isValid() throws Exception {
             // given
-            when(userPointTable.selectById(eq(EXISTING_USER_ID))).thenReturn(new UserPoint(EXISTING_USER_ID, 1000L,DEFAULT_CURRENT_TIME));
+            when(userPointTable.selectById(eq(EXISTING_USER_ID))).thenReturn(new UserPoint(EXISTING_USER_ID, 1000L, DEFAULT_CURRENT_TIME));
 
             when(userPointTable.insertOrUpdate(eq(EXISTING_USER_ID), eq(2000L)))
-                    .thenReturn(new UserPoint(EXISTING_USER_ID, 2000L,DEFAULT_CURRENT_TIME));
+                    .thenReturn(new UserPoint(EXISTING_USER_ID, 2000L, DEFAULT_CURRENT_TIME));
 
             when(pointHistoryTable.insert(eq(EXISTING_USER_ID), eq(1000L), eq(TransactionType.CHARGE), eq(1234L)))
                     .thenReturn(new PointHistory(1, EXISTING_USER_ID, 1000L, TransactionType.CHARGE, 1234L));
@@ -152,7 +190,7 @@ class PointServiceTest {
 
         @Test
         @DisplayName("포인트 충전 - 유효하지 않은 경우 예외 발생 - 한도 초과")
-        public void charge_isNotValid_shouldThrow_overPoint() throws Exception{
+        public void charge_isNotValid_shouldThrow_overPoint() throws Exception {
             // given
             long initialPoint = 9000L;
             when(userPointTable.selectById(eq(EXISTING_USER_ID)))
@@ -169,6 +207,7 @@ class PointServiceTest {
             verify(userPointTable, never()).insertOrUpdate(anyLong(), anyLong());
             verify(pointHistoryTable, never()).insert(anyLong(), anyLong(), any(), anyLong());
         }
+
     }
 
 

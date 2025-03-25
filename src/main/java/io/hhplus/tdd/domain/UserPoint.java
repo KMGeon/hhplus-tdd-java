@@ -28,6 +28,10 @@ public record UserPoint(
         return  this.point + amount;
     }
 
+    public boolean isNewUser(){
+        return this.updateMillis == System.currentTimeMillis();
+    }
+
     private boolean canCharge(long amount) {
         return amount >= 0 && this.point + amount <= LIMIT_POINT;
     }
