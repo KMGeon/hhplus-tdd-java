@@ -12,6 +12,7 @@ public record UserPoint(
         return new UserPoint(id, 0, System.currentTimeMillis());
     }
 
+
     public long charge(long amount) {
         if (!canCharge(amount)) {
             if (amount < 0) {
@@ -28,11 +29,18 @@ public record UserPoint(
         return  this.point + amount;
     }
 
-    public boolean isNewUser(){
-        return this.updateMillis == System.currentTimeMillis();
+    public long use(long requiredPoint) {
+        if (!isEnoughPoint(requiredPoint)) {
+            throw new RuntimeException("포인트가 부족합니다.");
+        }
+        return this.point - requiredPoint;
     }
 
     private boolean canCharge(long amount) {
         return amount >= 0 && this.point + amount <= LIMIT_POINT;
+    }
+
+    private boolean isEnoughPoint(long requiredPoint) {
+        return this.point >= requiredPoint;
     }
 }

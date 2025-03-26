@@ -62,14 +62,18 @@ public class PointController {
         return rtn;
     }
 
-    /**
-     * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
-     */
     @PatchMapping("{id}/use")
     public UserPoint use(
             @PathVariable(name = "id") long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        logger.info("====== /{id}/use [{}.use()] start ======", getClass().getSimpleName());
+
+        logger.info("[{}] ======  /{id}/use [currTimeMillis : {}]", getClass().getSimpleName(), currTimeMillis);
+        UserPoint rtn = pointService.use(id,amount, currTimeMillis);
+
+        logger.info("[{}] ======  /{id}/use [rtn : {}]", getClass().getSimpleName(), rtn);
+        logger.info("====== /{id}/use [{}.use()] end ======", getClass().getSimpleName());
+        return rtn;
     }
 }

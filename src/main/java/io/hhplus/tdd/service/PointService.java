@@ -31,9 +31,7 @@ public class PointService {
     public List<PointHistory> history(
             final long id
     ) {
-        return userPointTable.selectById(id)
-                .isNewUser() ? List.of() :
-                pointHistoryTable.selectAllByUserId(id);
+        return pointHistoryTable.selectAllByUserId(id);
     }
 
     public UserPoint charge(
@@ -62,4 +60,28 @@ public class PointService {
 
         return savedUserPoint;
     }
+
+
+    public UserPoint use(
+            final long userId,
+            final long amount,
+            final long currTimeMillis
+    ) {
+        UserPoint userPoint = userPointTable.selectById(userId);
+
+        UserPoint rtn = userPointTable.insertOrUpdate(
+                userId,
+                userPoint.use(amount)
+        );
+        pointHistoryTable.insert(
+                userId,
+                amount,
+                TransactionType.USE,
+                currTimeMillis
+        );
+
+        return rtn;
+    }
+
+
 }

@@ -3,12 +3,14 @@ package io.hhplus.tdd.controller.api;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.tdd.MockApiCaller;
+import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.UserPoint;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -26,8 +28,20 @@ public class PointMockApiCaller extends MockApiCaller {
 
         return objectMapper.readValue(mockMvc.perform(builder)
                 .andExpect(status().is(expectStatus))
-                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserPoint>() {});
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+        });
     }
+
+    public List<PointHistory> history(long id, int expectStatus) throws Exception {
+        MockHttpServletRequestBuilder builder = get("/point/{id}/histories", id)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return objectMapper.readValue(mockMvc.perform(builder)
+                .andExpect(status().is(expectStatus))
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+        });
+    }
+
 
     public UserPoint charge(long id, long amount, int expectStatus) throws Exception {
         MockHttpServletRequestBuilder builder = patch("/point/{id}/charge", id)
@@ -36,6 +50,19 @@ public class PointMockApiCaller extends MockApiCaller {
 
         return objectMapper.readValue(mockMvc.perform(builder)
                 .andExpect(status().is(expectStatus))
-                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserPoint>() {});
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+        });
+    }
+
+    public UserPoint use(long id, long amount, int expectStatus) throws Exception {
+        MockHttpServletRequestBuilder builder = patch("/point/{id}/use", id)
+                .content(objectMapper.writeValueAsString(amount))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return objectMapper.readValue(mockMvc.perform(builder)
+                .andExpect(status().is(expectStatus))
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+        });
     }
 }
+

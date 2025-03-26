@@ -97,13 +97,4 @@ class UserPointTest {
                 .hasMessageContaining("충전 한도 초과");
 
     }
-
-    @Test
-    public void 신규_유저_판단() throws Exception{
-        // given
-        // when
-        boolean newUser = UserPoint.empty(USER_ID).isNewUser();
-        // then
-        assertEquals(newUser,true,"");
-    }
 }

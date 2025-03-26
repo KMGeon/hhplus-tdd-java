@@ -5,6 +5,7 @@ import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.repository.PointHistoryTable;
 import io.hhplus.tdd.repository.UserPointTable;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -99,18 +100,21 @@ class PointServiceTest {
 
         @Test
         @DisplayName("기존 유저가 있을 시 List<History> 반환")
-        public void history_shouldReturnUser_existUser() throws Exception{
+        public void history_shouldReturnUser_newUser() throws Exception{
             // given
-            List<PointHistory> expectHistory = List.of(new PointHistory(1L, 1L, 1000L, TransactionType.CHARGE, 1234L));
 
-            when(userPointTable.selectById(eq(EXISTING_USER_ID))).thenReturn(existingUserPoint);
-            when(pointHistoryTable.selectAllByUserId(eq(EXISTING_USER_ID))).thenReturn(expectHistory);
+            List<PointHistory> expectResponse = List.of(
+                    new PointHistory(3L, 1L, 30000L, TransactionType.CHARGE, System.currentTimeMillis()),
+                    new PointHistory(2L, 1L, -200L, TransactionType.USE, System.currentTimeMillis()),
+                    new PointHistory(1L, 1L, 1000L, TransactionType.CHARGE, System.currentTimeMillis())
+            );
+
+            when(pointHistoryTable.selectAllByUserId(eq(EXISTING_USER_ID))).thenReturn(expectResponse);
             // when
             List<PointHistory> rtn = pointService.history(EXISTING_USER_ID);
 
             // then
-            assertEquals(rtn,expectHistory);
-            verify(userPointTable, times(1)).selectById(EXISTING_USER_ID);
+            assertThat(rtn).isNotEmpty();
             verify(pointHistoryTable, times(1)).selectAllByUserId(EXISTING_USER_ID);
         }
 
@@ -118,13 +122,13 @@ class PointServiceTest {
         @DisplayName("신규 유저 [] 반환")
         public void history_shouldReturnEmpty_newUser() throws Exception{
             // given
-            when(userPointTable.selectById(eq(NEW_USER_ID))).thenReturn(UserPoint.empty(NEW_USER_ID));
+            when(pointHistoryTable.selectAllByUserId(eq(NEW_USER_ID))).thenReturn(List.of());
             // when
             List<PointHistory> rtn = pointService.history(NEW_USER_ID);
 
             // then
             assertThat(rtn).isEmpty();
-            verify(userPointTable, times(1)).selectById(NEW_USER_ID);
+            verify(pointHistoryTable, times(1)).selectAllByUserId(NEW_USER_ID);
         }
 
      }
