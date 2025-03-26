@@ -396,7 +396,7 @@ public class PointServiceIntegrationTest {
                         assertEquals(TransactionType.CHARGE, third.type());
                     },
 
-                    // (1000 - 300 + 500 = 1200)
+                    // 1000 - 300 + 500 = 1200
                     () -> {
                         UserPoint finalUserPoint = userPointTable.selectById(USER_ID);
                         assertEquals(1200L, finalUserPoint.point());

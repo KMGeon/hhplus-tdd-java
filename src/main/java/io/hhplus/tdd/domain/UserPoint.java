@@ -41,6 +41,6 @@ public record UserPoint(
     }
 
     private boolean isEnoughPoint(long requiredPoint) {
-        return this.point >= requiredPoint;
+        return this.point > requiredPoint;
     }
 }

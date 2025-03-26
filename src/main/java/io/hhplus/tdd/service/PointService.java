@@ -69,9 +69,12 @@ public class PointService {
     ) {
         UserPoint userPoint = userPointTable.selectById(userId);
 
+        long usePoint = userPoint.use(amount);
+        logger.info("[{}.use] : usePoint: {}", getClass().getSimpleName(), amount);
+
         UserPoint rtn = userPointTable.insertOrUpdate(
                 userId,
-                userPoint.use(amount)
+                usePoint
         );
         pointHistoryTable.insert(
                 userId,
