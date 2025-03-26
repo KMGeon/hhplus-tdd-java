@@ -37,10 +37,10 @@ public record UserPoint(
     }
 
     private boolean canCharge(long amount) {
-        return amount >= 0 && this.point + amount <= LIMIT_POINT;
+        return amount > 0 && this.point + amount <= LIMIT_POINT;
     }
 
     private boolean isEnoughPoint(long requiredPoint) {
-        return this.point > requiredPoint;
+        return this.point >= requiredPoint;
     }
 }

@@ -118,7 +118,7 @@ public class PointServiceIntegrationTest {
         }
 
         @ParameterizedTest
-        @ValueSource(longs = {0, 1, 5000, 10000})
+        @ValueSource(longs = {1, 1, 5000, 10000})
         @DisplayName("다양한 금액의 포인트 충전 테스트")
         void charge_VariousAmounts_ShouldSucceed(long amount) {
             // when

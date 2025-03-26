@@ -36,7 +36,7 @@ class UserPointTest {
             "0, 1000, 1000",
             "5000, 3000, 8000",
             "9000, 1000, 10000",
-            "5000, 0, 5000"
+            "5000, 1, 5001"
     })
     void 포인트_충전_성공_테스트(long initialPoint, long chargeAmount, long expectedPoint) {
         // given
