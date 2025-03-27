@@ -64,36 +64,35 @@
    - ReentrantLock은 synchronized의 단점을 보완하기 위해 **도입된 Lock 인터페이스의 구현체**입니다. 이는 synchronized보다 더 유연하고 강력한 동기화 메커니즘을 제공합니다.
 
 ###  synchronized의 단점 해결
-### 1.1 공정성(Fairness) 설정
+### 공정성(Fairness) 설정
 - synchronized는 항상 비공정 락을 사용
 - ReentrantLock은 공정/비공정 선택 가능
 - 공정 락은 대기 시간이 긴 스레드 우선 처리
 
 
-### 1.2 타임아웃 설정
+### 타임아웃 설정
 - **parkNanos으로도 해결이 가능하다.**
 - synchronized는 무한 대기
 - ReentrantLock은 타임아웃 설정 가능
 - 데드락 방지 가능
 
-### 1.3 조건부 대기(Condition)
+### 조건부 대기(Condition)
 - synchronized는 단일 조건 대기만 가능
 - ReentrantLock은 여러 조건에 대한 대기 가능
 - 더 세밀한 스레드 제어 가능
 
 
-### 3.2 성능 고려
+### 성능 고려
 - 공정 락은 성능 저하 가능성
 - 상황에 맞는 락 전략 선택 필요
 - 불필요한 락 사용 지양
 
 ## 4. 결론
-- synchronized는 구현이 쉽고 성능이 비교적 좋은 장점이 있지만, 공정성과 기아 현상이라는 근본적인 문제가 있었습니다. 
 
+- synchronized는 구현이 쉽고 성능이 비교적 좋은 성능의 장점이 있지만, 공정성과 기아 현상이라는 근본적인 문제가 있었습니다.
 - 이러한 synchronized의 한계를 극복하기 위해 LockSupport 구현체인 ReentrantLock을 선택했습니다.
+- ReentrantLock에서 기존에 문제를 park, parkNanos등 LockSupport를 사용하면 기존의 문제를 해결할 수 있다.
+  - 기존에 synchronized에서 `Block`이 되었을 때 무한히 대기해야 될 수 있는데 LockSupport에서는 `Waiting`으로 특정 시간 타입아웃 또는 인터럽트로 빠져나올 수 있다. 즉. 세밀하게 Thread의 포인트를 컨트롤 할 수 있다.
 
-- LockSupport의 parkNanos, park, parkNano 등의 다양한 메서드를 통해 기존 Thread를 더 세밀하게 제어할 수 있게 되었고
-ConcurrentHashMap을 통해 사용자별 락을 효율적으로 관리할 수 있게 되었습니다. 
-
-- ReentrantLock은 공정성 설정, 타임아웃 처리, 조건부 대기 등 synchronized가 제공하지 못했던 기능들을 사용이 가능하고, `ConcurrentHashMap`은 스레드 안전한 방식으로 사용자별 락을 관리하며, computeIfAbsent와 같은 원자적 연산을 제공합니다.
-이렇게 구현된 ReentrantLock과 ConcurrentHashMap의 조합은 synchronized의 단점을 완벽하게 보완했습니다. 사용자별로 독립적인 락을 관리하면서도, 스레드 안전성을 보장할 수 있게 되었습니다. 특히 LockSupport의 다양한 메서드를 활용하여 스레드의 동작을 더 세밀하게 제어할 수 있게 되었습니다.
+- ReentrantLock은 공정성 설정, 타임아웃 처리, 조건부 대기 등 synchronized가 제공하지 못했던 기능들을 제공합니다. 
+- ConcurrentHashMap과 함께 활용할 경우, 스레드 안전한 방식으로 사용자별 락을 효율적으로 관리할 수 있습니다. ConcurrentHashMap의 computeIfAbsent와 같은 원자적 연산은 멀티스레드 환경에서 안전하게 사용자별 락을 생성하고 관리할 수 있게 해주어, 더욱 세밀하고 효율적인 동시성 제어가 가능해집니다.
