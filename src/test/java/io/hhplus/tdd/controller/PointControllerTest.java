@@ -3,7 +3,7 @@ package io.hhplus.tdd.controller;
 import io.hhplus.tdd.ControllerTest;
 import io.hhplus.tdd.controller.api.PointMockApiCaller;
 import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.TransactionType;
+import io.hhplus.tdd.service.transaction.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -2,7 +2,7 @@ package io.hhplus.tdd.repository;
 
 
 import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.TransactionType;
+import io.hhplus.tdd.service.transaction.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

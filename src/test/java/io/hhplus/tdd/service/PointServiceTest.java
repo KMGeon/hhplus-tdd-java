@@ -1,11 +1,10 @@
 package io.hhplus.tdd.service;
 
 import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.TransactionType;
+import io.hhplus.tdd.service.transaction.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.repository.PointHistoryTable;
 import io.hhplus.tdd.repository.UserPointTable;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

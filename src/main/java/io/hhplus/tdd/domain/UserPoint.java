@@ -13,7 +13,7 @@ public record UserPoint(
     }
 
 
-    public long charge(long amount) {
+    public synchronized long charge(long amount) {
         if (!canCharge(amount)) {
             if (amount < 0) {
                 throw new IllegalArgumentException(

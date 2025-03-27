@@ -1,7 +1,7 @@
 package io.hhplus.tdd.service;
 
 import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.TransactionType;
+import io.hhplus.tdd.service.transaction.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.repository.PointHistoryTable;
 import io.hhplus.tdd.repository.UserPointTable;
@@ -14,7 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -510,5 +516,4 @@ public class PointServiceIntegrationTest {
             assertEquals(maxCharge, histories.get(1).amount());
         }
     }
-
 }
